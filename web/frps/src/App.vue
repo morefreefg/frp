@@ -52,6 +52,9 @@
         :class="{ 'mobile-open': isMobile && sidebarOpen }"
       >
         <nav class="sidebar-nav">
+          <router-link to="/config" class="sidebar-link" :class="{ active: route.path === '/config' }" @click="closeSidebar">
+            Configuration
+          </router-link>
           <router-link
             to="/"
             class="sidebar-link"

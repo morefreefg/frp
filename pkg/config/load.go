@@ -31,6 +31,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 
 	"github.com/fatedier/frp/pkg/config/legacy"
+	"github.com/fatedier/frp/pkg/config/securefile"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
 	"github.com/fatedier/frp/pkg/msg"
@@ -74,7 +75,7 @@ func DetectLegacyINIFormat(content []byte) bool {
 }
 
 func DetectLegacyINIFormatFromFile(path string) bool {
-	b, err := os.ReadFile(path)
+	b, err := securefile.ReadFile(path)
 	if err != nil {
 		return false
 	}
@@ -98,7 +99,7 @@ func RenderWithTemplate(in []byte, values *Values) ([]byte, error) {
 }
 
 func LoadFileContentWithTemplate(path string, values *Values) ([]byte, error) {
-	b, err := os.ReadFile(path)
+	b, err := securefile.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -115,6 +116,7 @@ func LoadConfigureFromFile(path string, c any, strict bool) error {
 
 // detectFormatFromPath returns a format hint based on the file extension.
 func detectFormatFromPath(path string) string {
+	path = strings.TrimSuffix(path, ".enc")
 	switch strings.ToLower(filepath.Ext(path)) {
 	case ".toml":
 		return "toml"
@@ -319,6 +321,9 @@ func LoadServerConfig(path string, strict bool) (*v1.ServerConfig, bool, error) 
 		if err := svrCfg.Complete(); err != nil {
 			return nil, isLegacyFormat, err
 		}
+		if err := validateEncryptedDashboard(svrCfg.WebServer); err != nil {
+			return nil, isLegacyFormat, err
+		}
 	}
 	return svrCfg, isLegacyFormat, nil
 }
@@ -392,6 +397,9 @@ func LoadClientConfigResult(path string, strict bool) (*ClientConfigLoadResult, 
 		if err := result.Common.Complete(); err != nil {
 			return nil, err
 		}
+		if err := validateEncryptedDashboard(result.Common.WebServer); err != nil {
+			return nil, err
+		}
 	}
 
 	if err := validateNoDuplicateNames(result.Proxies, result.Visitors); err != nil {
@@ -399,6 +407,13 @@ func LoadClientConfigResult(path string, strict bool) (*ClientConfigLoadResult, 
 	}
 
 	return result, nil
+}
+
+func validateEncryptedDashboard(web v1.WebServerConfig) error {
+	if securefile.Enabled() && web.Port > 0 && (web.User == "" || web.Password == "") {
+		return errors.New("encrypted configuration requires a dashboard username and password when webServer is enabled")
+	}
+	return nil
 }
 
 func LoadClientConfig(path string, strict bool) (

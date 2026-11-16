@@ -1,5 +1,9 @@
 # frp
 
+This fork adds encrypted configuration storage and a server configuration editor.
+See [the fork guide](doc/encrypted-config.md) for setup, scope, security boundaries
+and builds. Upstream names, protocol, attribution and license are preserved.
+
 [![Build Status](https://circleci.com/gh/fatedier/frp.svg?style=shield)](https://circleci.com/gh/fatedier/frp)
 [![GitHub release](https://img.shields.io/github/tag/fatedier/frp.svg?label=release)](https://github.com/fatedier/frp/releases)
 [![GitHub Releases Stats](https://img.shields.io/github/downloads/fatedier/frp/total.svg?logo=github)](https://somsubhra.github.io/github-release-stats/?username=fatedier&repository=frp)

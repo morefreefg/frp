@@ -22,6 +22,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/fatedier/frp/cmd/internal/configcmd"
 	"github.com/fatedier/frp/pkg/config"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
@@ -41,6 +42,7 @@ var (
 )
 
 func init() {
+	rootCmd.AddCommand(configcmd.New())
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file of frps")
 	rootCmd.PersistentFlags().BoolVarP(&showVersion, "version", "v", false, "version of frps")
 	rootCmd.PersistentFlags().BoolVarP(&strictConfigMode, "strict_config", "", true, "strict config parsing mode, unknown fields will cause errors")
@@ -93,7 +95,7 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		if err := runServer(svrCfg); err != nil {
+		if err := runServer(svrCfg, unsafeFeatures); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
@@ -108,7 +110,7 @@ func Execute() {
 	}
 }
 
-func runServer(cfg *v1.ServerConfig) (err error) {
+func runServer(cfg *v1.ServerConfig, unsafeFeatures *security.UnsafeFeatures) (err error) {
 	log.InitLogger(cfg.Log.To, cfg.Log.Level, int(cfg.Log.MaxDays), cfg.Log.DisablePrintColor)
 
 	if cfgFile != "" {
@@ -117,7 +119,7 @@ func runServer(cfg *v1.ServerConfig) (err error) {
 		log.Infof("frps uses command line arguments for config")
 	}
 
-	svr, err := server.NewService(cfg)
+	svr, err := server.NewService(cfg, server.WithConfigFile(cfgFile, unsafeFeatures))
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@
     <div class="page-header">
       <div class="title-section">
         <h1 class="page-title">Config</h1>
+        <p>Original configuration fields apply. In encrypted mode, configuration and Store rules remain encrypted when saved.</p>
       </div>
     </div>
 

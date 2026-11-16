@@ -20,6 +20,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/fatedier/frp/pkg/config/securefile"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/util/jsonx"
 )
@@ -74,7 +75,7 @@ func (s *StoreSource) loadFromFile() error {
 }
 
 func (s *StoreSource) loadFromFileUnlocked() error {
-	data, err := os.ReadFile(s.config.Path)
+	data, err := securefile.ReadFile(s.config.Path)
 	if err != nil {
 		return err
 	}
@@ -145,36 +146,7 @@ func (s *StoreSource) saveToFileUnlocked() error {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
-	tmpPath := s.config.Path + ".tmp"
-
-	f, err := os.OpenFile(tmpPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
-	if err != nil {
-		return fmt.Errorf("failed to create temp file: %w", err)
-	}
-
-	if _, err := f.Write(data); err != nil {
-		f.Close()
-		os.Remove(tmpPath)
-		return fmt.Errorf("failed to write temp file: %w", err)
-	}
-
-	if err := f.Sync(); err != nil {
-		f.Close()
-		os.Remove(tmpPath)
-		return fmt.Errorf("failed to sync temp file: %w", err)
-	}
-
-	if err := f.Close(); err != nil {
-		os.Remove(tmpPath)
-		return fmt.Errorf("failed to close temp file: %w", err)
-	}
-
-	if err := os.Rename(tmpPath, s.config.Path); err != nil {
-		os.Remove(tmpPath)
-		return fmt.Errorf("failed to rename temp file: %w", err)
-	}
-
-	return nil
+	return securefile.WriteFile(s.config.Path, data)
 }
 
 func (s *StoreSource) persistOrRollbackUnlocked(rollback func()) error {

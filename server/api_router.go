@@ -30,6 +30,9 @@ func (svr *Service) registerRouteHandlers(helper *httppkg.RouterRegisterHelper) 
 
 	subRouter.Use(helper.AuthMiddleware)
 	subRouter.Use(httppkg.NewRequestLogger)
+	if svr.configEditor != nil {
+		subRouter.HandleFunc("/api/config", svr.configEditor.serve).Methods(http.MethodGet, http.MethodPut)
+	}
 
 	// metrics
 	if svr.cfg.EnablePrometheus {

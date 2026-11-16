@@ -1,5 +1,9 @@
 # frp
 
+本 fork 增加了两端配置加密、客户端 Store 加密和服务端配置编辑页面。
+用法与安全边界见[使用说明](doc/encrypted-config.md)，本轮验证范围见[验收记录](doc/encrypted-config-qa.md)。
+保留上游名称、参数、协议、来源和许可证。
+
 [![Build Status](https://circleci.com/gh/fatedier/frp.svg?style=shield)](https://circleci.com/gh/fatedier/frp)
 [![GitHub release](https://img.shields.io/github/tag/fatedier/frp.svg?label=release)](https://github.com/fatedier/frp/releases)
 [![GitHub Releases Stats](https://img.shields.io/github/downloads/fatedier/frp/total.svg?logo=github)](https://somsubhra.github.io/github-release-stats/?username=fatedier&repository=frp)

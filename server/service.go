@@ -134,7 +134,8 @@ type Service struct {
 
 	tlsConfig *tls.Config
 
-	cfg *v1.ServerConfig
+	cfg          *v1.ServerConfig
+	configEditor *configFileEditor
 
 	// service context
 	ctx context.Context
@@ -145,7 +146,7 @@ type Service struct {
 	closeOnce   sync.Once
 }
 
-func NewService(cfg *v1.ServerConfig) (*Service, error) {
+func NewService(cfg *v1.ServerConfig, options ...ServiceOption) (*Service, error) {
 	tlsConfig, err := transport.NewServerTLSConfig(
 		cfg.Transport.TLS.CertFile,
 		cfg.Transport.TLS.KeyFile,
@@ -174,6 +175,9 @@ func NewService(cfg *v1.ServerConfig) (*Service, error) {
 		tlsConfig:         tlsConfig,
 		cfg:               cfg,
 		ctx:               context.Background(),
+	}
+	for _, option := range options {
+		option(svr)
 	}
 
 	// Create tcpmux httpconnect multiplexer.

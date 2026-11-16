@@ -3,12 +3,12 @@ package client
 import (
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/fatedier/frp/client/configmgmt"
 	"github.com/fatedier/frp/client/proxy"
 	"github.com/fatedier/frp/pkg/config"
+	"github.com/fatedier/frp/pkg/config/securefile"
 	"github.com/fatedier/frp/pkg/config/source"
 	v1 "github.com/fatedier/frp/pkg/config/v1"
 	"github.com/fatedier/frp/pkg/config/v1/validation"
@@ -77,7 +77,7 @@ func (m *serviceConfigManager) ReadConfigFile() (string, error) {
 		return "", fmt.Errorf("%w: frpc has no config file path", configmgmt.ErrInvalidArgument)
 	}
 
-	content, err := os.ReadFile(m.svr.configFilePath)
+	content, err := securefile.ReadFile(m.svr.configFilePath)
 	if err != nil {
 		return "", fmt.Errorf("%w: %v", configmgmt.ErrInvalidArgument, err)
 	}
@@ -89,10 +89,37 @@ func (m *serviceConfigManager) WriteConfigFile(content []byte) error {
 		return fmt.Errorf("%w: body can't be empty", configmgmt.ErrInvalidArgument)
 	}
 
-	if err := os.WriteFile(m.svr.configFilePath, content, 0o600); err != nil {
-		return err
+	if m.svr.configFilePath == "" {
+		return fmt.Errorf("%w: frpc has no config file path", configmgmt.ErrInvalidArgument)
 	}
-	return nil
+	// Validate in memory before replacing the last usable configuration.
+	rendered, err := config.RenderWithTemplate(content, config.GetValues())
+	if err != nil {
+		return fmt.Errorf("%w: invalid configuration template", configmgmt.ErrInvalidArgument)
+	}
+	var parsed v1.ClientConfig
+	if err := config.LoadConfigure(rendered, &parsed, true); err != nil {
+		return fmt.Errorf("%w: invalid configuration syntax or fields", configmgmt.ErrInvalidArgument)
+	}
+	if err := parsed.ClientCommonConfig.Complete(); err != nil {
+		return fmt.Errorf("%w: invalid common configuration", configmgmt.ErrInvalidArgument)
+	}
+	if securefile.Enabled() && parsed.WebServer.Port > 0 && (parsed.WebServer.User == "" || parsed.WebServer.Password == "") {
+		return fmt.Errorf("%w: encrypted configuration requires dashboard credentials", configmgmt.ErrInvalidArgument)
+	}
+	proxies := make([]v1.ProxyConfigurer, 0, len(parsed.Proxies))
+	for _, p := range parsed.Proxies {
+		proxies = append(proxies, p.ProxyConfigurer)
+	}
+	visitors := make([]v1.VisitorConfigurer, 0, len(parsed.Visitors))
+	for _, v := range parsed.Visitors {
+		visitors = append(visitors, v.VisitorConfigurer)
+	}
+	if _, err := validation.ValidateAllClientConfig(&parsed.ClientCommonConfig,
+		config.CompleteProxyConfigurers(proxies), config.CompleteVisitorConfigurers(visitors), m.svr.unsafeFeatures); err != nil {
+		return fmt.Errorf("%w: invalid configuration values", configmgmt.ErrInvalidArgument)
+	}
+	return securefile.WriteFile(m.svr.configFilePath, content)
 }
 
 func (m *serviceConfigManager) GetProxyStatus() []*proxy.WorkingStatus {

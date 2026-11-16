@@ -4,6 +4,7 @@ import Clients from '../views/Clients.vue'
 import ClientDetail from '../views/ClientDetail.vue'
 import Proxies from '../views/Proxies.vue'
 import ProxyDetail from '../views/ProxyDetail.vue'
+import ServerConfigure from '../views/ServerConfigure.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -11,6 +12,7 @@ const router = createRouter({
     return { top: 0 }
   },
   routes: [
+    { path: '/config', name: 'ServerConfigure', component: ServerConfigure },
     {
       path: '/',
       name: 'ServerOverview',

@@ -112,6 +112,7 @@ func (c *Controller) Status(ctx *httppkg.Context) (any, error) {
 
 // GetConfig handles GET /api/config
 func (c *Controller) GetConfig(ctx *httppkg.Context) (any, error) {
+	ctx.Resp.Header().Set("Cache-Control", "no-store")
 	content, err := c.manager.ReadConfigFile()
 	if err != nil {
 		return nil, c.toHTTPError(err)
@@ -121,6 +122,7 @@ func (c *Controller) GetConfig(ctx *httppkg.Context) (any, error) {
 
 // PutConfig handles PUT /api/config
 func (c *Controller) PutConfig(ctx *httppkg.Context) (any, error) {
+	ctx.Req.Body = http.MaxBytesReader(ctx.Resp, ctx.Req.Body, 8<<20)
 	body, err := ctx.Body()
 	if err != nil {
 		return nil, httppkg.NewError(http.StatusBadRequest, fmt.Sprintf("read request body error: %v", err))
