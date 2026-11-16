@@ -1,5 +1,9 @@
 # frp
 
+新增专用入口 **kaboo-server / kaboo-cli**：内置公开信任证书、强制 TLS 1.3、
+Web 首次初始化和客户端内置 SS 反向代理。运行程序不接收配置参数，地址文件只有
+`ip`、`port`。见 [Kaboo 使用说明](doc/kaboo.md)。服务端私钥独立加密保存。
+
 本 fork 增加了两端配置加密、客户端 Store 加密和服务端配置编辑页面。
 用法与安全边界见[使用说明](doc/encrypted-config.md)，本轮验证范围见[验收记录](doc/encrypted-config-qa.md)。
 保留上游名称、参数、协议、来源和许可证。

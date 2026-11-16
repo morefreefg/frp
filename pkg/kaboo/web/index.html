@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kaboo</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body><main>
+  <header><p class="eyebrow">KABOO · 加密反向代理</p><h1 id="title">Kaboo</h1><p id="status" role="status">正在连接本机管理服务…</p></header>
+  <section id="setup"><h2 id="setup-title">首次初始化</h2>
+    <form id="setup-form">
+      <div class="fields"><label><span id="ip-label">服务器 IP</span><input id="ip" name="ip" required autocomplete="off" spellcheck="false"></label><label>隧道端口<input id="port" name="port" type="number" min="1" max="65535" required></label></div>
+      <div id="server-fields" hidden>
+        <label>对外 SS 端口（TCP 与 UDP）<input id="ss-port" type="number" min="1" max="65535" value="8388"></label>
+        <div id="provision-fields"><label>加密私钥部署包<input id="provision" type="file" accept=".enc,.json"></label><p class="hint">部署包在程序同目录时可以不选。它不包含解锁码。</p><label>部署包解锁码<input id="activation" type="password" autocomplete="off" spellcheck="false"></label></div>
+      </div>
+      <div id="client-fields" hidden><label>配对码<textarea id="pairing-input" rows="4" placeholder="从 kaboo-server 复制 kaboo://…" autocomplete="off" spellcheck="false"></textarea></label><p class="hint">首次初始化必填。后续只改地址时可留空。</p></div>
+      <button id="save" type="submit">加密保存并启动</button><p id="message" role="status"></p>
+    </form>
+  </section>
+  <section id="sharing" hidden><h2>连接信息</h2><p>将配对码导入 kaboo-cli。SS 分享链接供普通 Shadowsocks 客户端使用，出口在 kaboo-cli 所在网络。</p><button id="show-sharing" type="button">显示连接信息</button><div id="sharing-values" hidden><label id="pairing-output-label">Kaboo 配对码<textarea id="pairing-output" readonly rows="4" spellcheck="false"></textarea></label><label>SS 分享链接<input id="ss-url" readonly spellcheck="false"></label><p class="hint">如果地址显示 SERVER_IP，请替换为服务器实际地址。请单独保管配对码和 SS 链接。</p></div></section>
+  <footer><p id="build"></p><p id="trust"></p><p id="endpoint-path"></p><p>隧道：TLS 1.3，验证内置证书 · SS：aes-256-gcm</p><a href="https://github.com/morefreefg/frp" target="_blank" rel="noopener noreferrer">开源源码与许可证 · 基于 frp</a></footer>
+</main></body></html>

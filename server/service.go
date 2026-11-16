@@ -179,6 +179,7 @@ func NewService(cfg *v1.ServerConfig, options ...ServiceOption) (*Service, error
 	for _, option := range options {
 		option(svr)
 	}
+	tlsConfig = svr.tlsConfig
 
 	// Create tcpmux httpconnect multiplexer.
 	if cfg.TCPMuxHTTPConnectPort > 0 {

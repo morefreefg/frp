@@ -1,5 +1,9 @@
 # frp
 
+The **kaboo-server / kaboo-cli** entry points add embedded public trust, verified
+TLS 1.3, local Web initialization, and an embedded client-side Shadowsocks reverse
+proxy. See [the Kaboo guide](doc/kaboo.md). Server private keys stay outside binaries.
+
 This fork adds encrypted configuration storage and a server configuration editor.
 See [the fork guide](doc/encrypted-config.md) for setup, scope, security boundaries
 and builds. Upstream names, protocol, attribution and license are preserved.

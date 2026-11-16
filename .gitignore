@@ -35,3 +35,9 @@ node_modules/
 .claude/
 .sisyphus/
 .superpowers/
+
+# Kaboo deployment and runtime secrets (public trust/ca.pem is intentionally tracked)
+kaboo-server.provision.enc
+activation.key
+settings.enc
+master.key
